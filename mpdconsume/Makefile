@@ -1,6 +1,7 @@
 -include config.mk
 
 PREFIX ?= /usr/local
+INSTALLDIR ?= ${PREFIX}
 
 all:
 	gcc -std=c99 -W -Wall -Wextra -pedantic -Wcast-align -Wcast-qual\
@@ -10,4 +11,4 @@ all:
 	    mpdconsume.c -lmpdclient -o mpdconsume
 
 install:
-	install -D -m 755 mpdconsume ${PREFIX}/bin/mpdconsume
+	install -D -m 755 mpdconsume ${INSTALLDIR}/bin/mpdconsume

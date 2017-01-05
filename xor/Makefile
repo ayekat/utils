@@ -1,6 +1,7 @@
 -include config.mk
 
 PREFIX ?= /usr/local
+INSTALLDIR ?= ${PREFIX}
 
 all:
 	gcc -W -Wall -Wextra -pedantic -g -Wcast-align -Wcast-qual -Wconversion \
@@ -10,4 +11,4 @@ all:
 	    xor.c -o xor
 
 install:
-	install -D -m 755 xor ${PREFIX}/bin/xor
+	install -D -m 755 xor ${INSTALLDIR}/bin/xor

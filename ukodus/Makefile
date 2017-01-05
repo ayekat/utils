@@ -16,7 +16,7 @@ DEPENDS = $(OBJECTS:%.o=%.d)
 
 # Installation prefix:
 PREFIX ?= /usr/local
-BINDIR ?= ${PREFIX}/bin
+INSTALLDIR ?= ${PREFIX}
 
 # Compilation flags:
 _CFLAGS = -std=c99
@@ -96,4 +96,4 @@ mrproper: clean
 # Installation:
 .PHONY: install
 install:
-	install -D -m 755 ${APPNAME} ${BINDIR}/${APPNAME}
+	install -D -m 755 ${APPNAME} ${INSTALLDIR}/bin/${APPNAME}
