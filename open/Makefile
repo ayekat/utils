@@ -1,19 +1,9 @@
-# Installation prefix:
-PREFIX = ~/.local
+-include config.mk
 
-# Application name:
-APPNAME = open
+PREFIX ?= /usr/local
 
-# Default: Do nothing
 all:
+	# Nothing to do
 
-# Handy actions:
 install:
-	install ${APPNAME} ${PREFIX}/bin/${APPNAME}
-uninstall:
-	rm -f ${PREFIX}/bin/${APPNAME}
-
-# Phony targets:
-.PHONY: all
-.PHONY: install
-.PHONY: uninstall
+	install -D -m 755 open ${PREFIX}/bin/open

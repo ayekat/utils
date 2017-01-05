@@ -1,16 +1,9 @@
 -include config.mk
 
-APPNAME ?= mtgpmk
-
-INSTALLDIR ?= /usr/local
-BINDIR ?= ${INSTALLDIR}/bin
+PREFIX ?= /usr/local
 
 all:
 	# Nothing to do
 
 install:
-	mkdir -p ${BINDIR}
-	install -m 755 ${APPNAME} ${BINDIR}/
-
-uninstall:
-	rm -f ${BINDIR}/${APPNAME}
+	install -D -m 755 mtgpmk ${PREFIX}/bin/mtgpmk
