@@ -77,7 +77,7 @@ DEPENDENCIES
 
 BUGS
 	There certainly are plenty of them. Feel free to submit bug reports at
-	http://github.com/ayekat/dotfiles/. I'm an hobby developer, I won't bite ;-)
+	http://github.com/ayekat/utils/. I'm an hobby developer, I won't bite ;-)
 
 AUTHOR
 	Written by Tinu Weber (http://ayekat.ch/).

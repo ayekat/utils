@@ -14,10 +14,6 @@ SOURCES = $(shell find ${SRCDIR} -name '*.c')
 OBJECTS = $(SOURCES:${SRCDIR}/%.c=${BUILDDIR}/%.o)
 DEPENDS = $(OBJECTS:%.o=%.d)
 
-# Installation prefix:
-PREFIX ?= /usr/local
-INSTALLDIR ?= ${PREFIX}
-
 # Compilation flags:
 _CFLAGS = -std=c99
 _CFLAGS += -W -Wall -Wextra -pedantic
@@ -92,8 +88,3 @@ clean:
 	rm -rf ${BUILDDIR}
 mrproper: clean
 	rm -f ${APPNAME}
-
-# Installation:
-.PHONY: install
-install:
-	install -D -m 755 ${APPNAME} ${INSTALLDIR}/bin/${APPNAME}
