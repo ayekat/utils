@@ -4,15 +4,17 @@ PREFIX ?= /usr/local
 INSTALLDIR ?= ${PREFIX}
 
 all:
-	cd mpdconsume && PREFIX="${PREFIX}" make
-	cd mtgpmk && PREFIX="${PREFIX}" make
-	cd open && PREFIX="${PREFIX}" make
-	cd ukodus && PREFIX="${PREFIX}" make
-	cd xor && PREFIX="${PREFIX}" make
+	cd inotifywatchdog && make PREFIX="${PREFIX}"
+	cd mpdconsume && make PREFIX="${PREFIX}"
+	cd mtgpmk && make PREFIX="${PREFIX}"
+	cd open && make PREFIX="${PREFIX}"
+	cd ukodus && make PREFIX="${PREFIX}"
+	cd xor && make PREFIX="${PREFIX}"
 
 install:
-	cd mpdconsume && INSTALLDIR="${INSTALLDIR}" make install
-	cd mtgpmk && INSTALLDIR="${INSTALLDIR}" make install
-	cd open && INSTALLDIR="${INSTALLDIR}" make install
-	cd ukodus && INSTALLDIR="${INSTALLDIR}" make install
-	cd xor && INSTALLDIR="${INSTALLDIR}" make install
+	cd inotifywatchdog && make INSTALLDIR="${INSTALLDIR}" install
+	cd mpdconsume && make INSTALLDIR="${INSTALLDIR}" install
+	cd mtgpmk && make INSTALLDIR="${INSTALLDIR}" install
+	cd open && make INSTALLDIR="${INSTALLDIR}" install
+	cd ukodus && make INSTALLDIR="${INSTALLDIR}" install
+	cd xor && make INSTALLDIR="${INSTALLDIR}" install
