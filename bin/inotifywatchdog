@@ -15,7 +15,7 @@ inotifywait \
 	--event modify \
 	--event move \
 	--format '%e %w%f' \
-	--fromfile "$CONFIG_FILE" \
+	--fromfile "$CONFIG" \
 | while read -r event; do
 	notify-send "Watchdog" "$event"
 done
