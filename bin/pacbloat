@@ -3,6 +3,11 @@
 # part of the 'base' or 'base-devel' group, and which have been explicitely
 # installed while not being required for any other package.
 
-[ "$1" = '-a' ] || t=t
-diff <(pacman -Qqg base base-devel | sort -u) <(pacman -Q${t}qe | sort -u) | \
+t=t
+base=base
+if [ "$1" = '-a' ]; then
+	t=''
+	base=''
+fi
+diff <(pacman -Qqg $base base-devel | sort -u) <(pacman -Q${t}qe | sort -u) | \
 	grep '^>' | awk '{print $2}'
