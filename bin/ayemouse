@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+# Swaps left and right mouse buttons if using a ThinkPad keyboard.
+
+tpps='TPPS/2 IBM TrackPoint'
+tpusb='pointer:Lenovo ThinkPad Compact USB Keyboard with TrackPoint'
+
+case "$(xinput list --name-only | grep "$tpps\\|$tpusb")" in
+	"$tpps") nbuttons=10 ;;
+	"$tpusb") nbuttons=22 ;;
+	*) exit
+esac
+xmodmap -e "pointer = 3 2 1 $(seq -s ' ' 4 $nbuttons)"
