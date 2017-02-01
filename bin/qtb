@@ -7,19 +7,26 @@
 # using the argument to set up the following directory structure and symbolic
 # links:
 #
-# * $XDG_RUNTIME_DIR/qutebrowser/$session/cache → $XDG_CACHE_HOME/qutebrowser/$session
-# * $XDG_RUNTIME_DIR/qutebrowser/$session/data → $XDG_DATA_HOME/qutebrowser/$session
-# * $XDG_RUNTIME_DIR/qutebrowser/$session/config → $XDG_CONFIG_HOME/qutebrowser
-# * $XDG_RUNTIME_DIR/qutebrowser/$session/runtime (no symlink, regular directory)
+# $XDG_RUNTIME_DIR/qutebrowser/$session/cache → $XDG_CACHE_HOME/qutebrowser/$session
+# $XDG_RUNTIME_DIR/qutebrowser/$session/data → $XDG_DATA_HOME/qutebrowser/$session
+# $XDG_RUNTIME_DIR/qutebrowser/$session/config → $XDG_CONFIG_HOME/qutebrowser
+# $XDG_RUNTIME_DIR/qutebrowser/$session/runtime (no symlink, regular directory)
 #
 # We then specify $XDG_RUNTIME_DIR/qutebrowser/$session as a --basedir, and the
 # files will end up in their intended locations (notice how the config directory
-# is the same for all sessions, as there is no point in keeping them separate).
+# is the same for all sessions, as there is no point in keeping it separate).
 #
 # Written by ayekat in an burst of nostalgy, on a mildly cold wednesday night in
-# February 2017
+# February 2017.
 
 set -e
+
+# Set default values for the variables as defined in the XDG base directory spec
+# (https://specifications.freedesktop.org/basedir-spec/latest/):
+XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/$(id -u)}"
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 
 # Translate options: Remove occurrences of -r/--restore from the list of options
 # while saving its argument for later.
