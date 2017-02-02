@@ -23,13 +23,13 @@ set -e
 
 # Set default values for the variables as defined in the XDG base directory spec
 # (https://specifications.freedesktop.org/basedir-spec/latest/):
-XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/$(id -u)}"
+XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 
-# Translate options: Remove occurrences of -r/--restore from the list of options
-# while saving its argument for later.
+# Translate options: remove occurrences of -r/--restore from the list of options
+# while saving its argument for later:
 session=default
 basedir_specified=n
 opts_read=0
