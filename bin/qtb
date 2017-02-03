@@ -38,7 +38,7 @@ while [ $opts_read -lt $# ]; do
 	shift
 	case "$opt" in
 		--basedir) basedir_specified=y ;;
-		-r|--restore) session="$1"; shift; continue ;;
+		-r|-[!-]*r|--restore) session="$1"; shift; continue ;;
 	esac
 	set -- "$@" "$opt"
 	opts_read=$((opts_read + 1))
