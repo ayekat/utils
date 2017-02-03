@@ -36,12 +36,12 @@ opts_read=0
 while [ $opts_read -lt $# ]; do
 	opt="$1"
 	shift
-	opts_read=$((opts_read + 1))
 	case "$opt" in
 		--basedir) basedir_specified=y ;;
 		-r|--restore) session="$1"; shift; continue ;;
 	esac
 	set -- "$@" "$opt"
+	opts_read=$((opts_read + 1))
 done
 basedir="$XDG_RUNTIME_DIR/qutebrowser/$session"
 
