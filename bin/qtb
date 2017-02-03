@@ -28,6 +28,9 @@ XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 
+# Dry run: set to 'y' to only print the command that would be executed:
+DRYRUN=n
+
 # Translate options: remove occurrences of -r/--restore from the list of options
 # while saving its argument for later:
 session=default
@@ -45,20 +48,26 @@ while [ $opts_read -lt $# ]; do
 done
 basedir="$XDG_RUNTIME_DIR/qutebrowser/$session"
 
+# Dry-run?
+MODE=''
+if [ "$DRYRUN" = 'y' ]; then
+	MODE='echo'
+fi
+
 # Set up session base directory (but only if --basedir has not been specified by
 # the user):
 if [ "$basedir_specified" = 'n' ]; then
 	set -- '--basedir' "$basedir" "$@"
-	mkdir -p \
+	$MODE mkdir -p \
 		"$basedir" \
 		"$XDG_CONFIG_HOME/qutebrowser" \
 		"$XDG_CACHE_HOME/qutebrowser/$session" \
 		"$XDG_DATA_HOME/qutebrowser/$session" \
 		"$basedir/runtime"
-	ln -fsT "$XDG_CONFIG_HOME/qutebrowser" "$basedir/config"
-	ln -fsT "$XDG_CACHE_HOME/qutebrowser/$session" "$basedir/cache"
-	ln -fsT "$XDG_DATA_HOME/qutebrowser/$session" "$basedir/data"
+	$MODE ln -fsT "$XDG_CONFIG_HOME/qutebrowser" "$basedir/config"
+	$MODE ln -fsT "$XDG_CACHE_HOME/qutebrowser/$session" "$basedir/cache"
+	$MODE ln -fsT "$XDG_DATA_HOME/qutebrowser/$session" "$basedir/data"
 fi
 
 # Run qutebrowser with the "fixed" options:
-exec /usr/bin/qutebrowser "$@"
+$MODE exec /usr/bin/qutebrowser "$@"
