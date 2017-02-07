@@ -3,8 +3,8 @@
 
 nondots="$(find "$HOME" -maxdepth 1 -mindepth 1 -name '[^.]*')"
 dots="$(find "$HOME" -maxdepth 1 -mindepth 1 -name '.*')"
-n_nondots="$(printf "%s" "$nondots" | wc -l)"
-n_dots="$(printf "%s" "$dots" | wc -l)"
+n_nondots="$(printf "%s\n" "$nondots" | wc -l)"
+n_dots="$(printf "%s\n" "$dots" | wc -l)"
 n_all=$(($n_nondots + $n_dots))
 
 cat <<- EOF
