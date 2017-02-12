@@ -8,11 +8,9 @@ n_dots="$(printf "%s\n" "$dots" | wc -l)"
 n_all=$(($n_nondots + $n_dots))
 
 cat <<- EOF
-$HOME statistics:
-
-dotfiles:     $n_dots
-normal files: $n_nondots
 total:        $n_all
+normal files: $n_nondots
+$(printf "\033[1m")dotfiles:     $n_dots$(printf "\033[0m")
 
 EOF
 cd "$HOME"
