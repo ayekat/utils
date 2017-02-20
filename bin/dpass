@@ -31,4 +31,4 @@ else
 fi
 
 # Type:
-sleep 0.1 && xclip -o -selection clipboard | xdotool type --file -
+sleep 0.1 && xclip -o -selection clipboard | xdotool type --clearmodifiers --file -
