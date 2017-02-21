@@ -1,0 +1,6 @@
+#!/usr/bin/env zsh
+# List all pacman packages that are installed explicitly while *also* being a
+# dependency of another package (i.e. "potentially redundantly installed
+# packages").
+
+exec diff <(pacman -Qqe) <(pacman -Qqett) | grep '^<' | cut -d' ' -f2
