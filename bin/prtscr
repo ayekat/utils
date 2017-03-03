@@ -10,10 +10,10 @@ file='%Y-%m-%d_%H%M%S.png'
 
 if [ "$1" = '-s' ]; then
 	# screen selections to $SCROT_SEL_DIR:
-	scrot -s -e "mv \$f '$SCROT_SEL_DIR'" "$file"
+	cd "$SCROT_SEL_DIR" && scrot -s "$file"
 else
 	# full screens to $SCROT_FULL_DIR:
-	scrot -e "mv \$f '$SCROT_FULL_DIR'" "$file"
+	cd "$SCROT_FULL_DIR" && scrot "$file"
 fi
 
 # notify user:
