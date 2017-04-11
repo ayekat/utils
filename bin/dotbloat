@@ -7,11 +7,32 @@ n_nondots="$(printf "%s\n" "$nondots" | wc -l)"
 n_dots="$(printf "%s\n" "$dots" | wc -l)"
 n_all=$(($n_nondots + $n_dots))
 
+prompt_delete() {
+	printf 'Delete %s? [Y/n] ' "$1"
+	read -r a
+	case "$a" in
+		''|Y*|y*) rm -rv "$1" ;;
+		N*|n*) ;;
+		*) prompt_delete "$1" ;;
+	esac
+}
+
+# statistics:
 cat <<- EOF
 total:        $n_all
 normal files: $n_nondots
 $(printf "\033[1m")dotfiles:     $n_dots$(printf "\033[0m")
 
 EOF
+
+# list:
 cd "$HOME"
 ls -1d --color=auto .[!.]*
+
+# delete:
+for i in .*; do
+	case "$i" in
+		(.|..|.android|.anthy|.asoundrc*|.local|.pam_environment|.pki|.ssh) ;;
+		(*) echo; prompt_delete "$i" ;;
+	esac
+done
