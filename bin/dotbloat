@@ -32,7 +32,7 @@ ls -1d --color=auto .[!.]*
 # delete:
 for i in .*; do
 	case "$i" in
-		(.|..|.android|.anthy|.asoundrc*|.local|.pam_environment|.pki|.ssh) ;;
+		(.|..|.android|.anthy|.local|.pam_environment|.pki|.ssh) ;;
 		(*) echo; prompt_delete "$i" ;;
 	esac
 done
