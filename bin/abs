@@ -4,7 +4,7 @@
 if [ -n "$1" ]; then
 	repo="$(expac -S '%r' "$1")"
 	case "$repo" in
-		community) ;;
+		community|multilib) repo=community ;;
 		core|extra) repo=packages ;;
 		*) echo "unknown repository for $1" >&2; exit 1 ;;
 	esac
