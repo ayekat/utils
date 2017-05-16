@@ -1,0 +1,101 @@
+#!/usr/bin/env sh
+
+# Constants:
+RUNNAME="$(basename "$0")"
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+E_SUCCESS=0
+E_USER=1
+E_CONFIG=2
+E_PERM=3
+E_NOTFOUND=127
+
+die()
+{
+	retval="$1"; shift
+	msg "$@"
+	if [ "$retval" = $E_USER ]; then
+		msg 'Run with --help for usage information.'
+	fi
+	exit "$retval"
+}
+
+usage()
+{
+	cat <<- EOF
+	$RUNNAME: Copy files to a host via SSH and print its HTTP URL
+
+	Usage: $RUNNAME [OPTIONS] [FILE]
+
+	Options:
+	  -h, --help         Display this message and exit
+	  -c, --config PATH  Path to configuration file [default=$config]
+	  -l, --list         List the files in the destination directory
+	  -v, --verbose      Display verbose information to stderr
+	
+	In the config file, the following variables must be defined:
+	  SERVER    SSH host name
+	  BASEURL   URL host + path (without the file)
+	  BASEDIR   Directory path on the server (relative to the user's home)
+
+	The following variables are optional:
+	  SCHEME    URL scheme [default=$SCHEME]
+
+	SSH server port and login user name can be set in ~/.ssh/config.
+	See ssh_config(5) for more information.
+	EOF
+}
+
+msg()
+{
+	printf "$@" >&2; echo >&2
+}
+
+# Default options and configuration:
+config="$XDG_CONFIG_HOME/$RUNNAME/config.sh"
+verbose=0
+list=0
+SCHEME=http
+USER="$(id -un)"
+
+# Read options:
+while [ $# -gt 0 ]; do
+	opt="$1"
+	case "$opt" in
+		(-h|--help) usage; exit $E_SUCCESS ;;
+		(-c|--config) config="$1"; shift ;;
+		(-l|--list) list=1 ;;
+		(-v|--verbose) verbose=1 ;;
+		(-*) die $E_USER 'Unknown option: %s' "$opt" ;;
+		(*) break ;;
+	esac
+	shift
+done
+if [ $list -eq 0 ]; then
+	file="$1"
+	test -n "$file" || die $E_USER 'Missing file'
+	test -e "$file" || die $E_NOTFOUND 'File %s not found' "$file"
+	test -r "$file" || die $E_PERM 'File %s not readable' "$file"
+	test -e "$config" || die $E_NOTFOUND 'Configuration file %s not found' "$config"
+	test -r "$config" || die $E_CONFIG 'Configuration file %s not readable' "$config"
+fi
+
+# Read config:
+. "$config"
+test -n "$SCHEME"   || die $E_CONFIG '%s: SCHEME not set' "$config"
+test $verbose -eq 0 || msg 'Using SCHEME=%s' "$SCHEME"
+test -n "$SERVER"   || die $E_CONFIG '%s: SERVER not set' "$config"
+test $verbose -eq 0 || msg 'Using SERVER=%s' "$SERVER"
+test -n "$BASEURL"  || die $E_CONFIG '%s: BASEURL not set' "$config"
+test $verbose -eq 0 || msg 'Using BASEURL=%s' "$BASEURL"
+test -n "$BASEDIR"  || die $E_CONFIG '%s: BASEDIR not set' "$config"
+test $verbose -eq 0 || msg 'Using BASEDIR=%s' "$BASEDIR"
+
+if [ $list -eq 1 ]; then
+	# List content:
+	ssh "$USER"@"$SERVER" "ls -lAht $BASEDIR"
+else
+	# Copy file:
+	fname="$(basename "$file")"
+	ssh "$SERVER" "cat > $BASEDIR/$fname" < "$1"
+	echo "$SCHEME://$BASEURL/$fname"
+fi
