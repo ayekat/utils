@@ -3,13 +3,17 @@
 
 if [ -n "$1" ]; then
 	repo="$(expac -S '%r' "$1")"
+	base="$(expac -S '%e' "$1")"
+	if [ "$base" = '(null)' ]; then
+		base="$1"
+	fi
 	case "$repo" in
 		community|multilib) repo=community ;;
 		core|extra) repo=packages ;;
-		*) echo "unknown repository for $1" >&2; exit 1 ;;
+		*) echo "unknown repository for $base" >&2; exit 1 ;;
 	esac
 	git clone "https://git.archlinux.org/svntogit/${repo}.git" \
-		--single-branch -b packages/"$1" "$1"
+		--single-branch -b packages/"$base" "$base"
 else
 	echo "Please specify a package name" >&2
 	exit 1
