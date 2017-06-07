@@ -4,7 +4,7 @@
 if [ -n "$1" ]; then
 	repo="$(expac -S '%r' "$1")"
 	base="$(expac -S '%e' "$1")"
-	if [ "$base" = '(null)' ]; then
+	if [ -z "$base" ] || [ "$base" = '(null)' ]; then
 		base="$1"
 	fi
 	case "$repo" in
