@@ -3,7 +3,7 @@
 pkgbase='ayekat-utils-deps'
 pkgname=('ayekat-utils-deps' 'ayekat-utils-deps-desktop')
 pkgver=2017.06.08
-pkgrel=1
+pkgrel=2
 arch=('any')
 url='https://github.com/ayekat/utils'
 license=('GPL3')
@@ -20,7 +20,7 @@ package_ayekat-utils-deps-desktop() {
   pkgdesc="Desktop dependencies for ayekat's utilities"
   depends=('argyllcms' 'ayekat-utils-deps' 'dmenu' 'exiv2' 'ffmpeg'
            'inotify-tools' 'pass' 'scrot' 'xorg-xmodmap' 'xorg-xinput'
-           'xorg-xrandr')
+           'xorg-xrandr' 'xtrlock')
   optdepends=('beep: bleep'
               'freerdp: RDP'
               'neroaac: encode AAC audio')
