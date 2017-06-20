@@ -14,13 +14,13 @@ die()
 
 is_integer() { case "$1" in (''|*[!0-9]*) false; esac; }
 
-[ -n "$1" ] || die 'Usage: %s MIN MAX' "$(basename $0)"
-is_integer "$1" || die 'Not an integer: `%s`' "$1"
+[ -n "$1" ] || die 'Usage: %s MIN MAX' "$(basename "$0")"
+is_integer "$1" || die 'Not an integer: %s' "$1"
 
 [ -n "$2" ] || die 'Please specify a maximum'
-is_integer "$2" || die 'Not an integer: `%s`' "$2"
+is_integer "$2" || die 'Not an integer: %s' "$2"
 
-[ $# -eq 2 ] || die "Trailing arguments: $@"
+[ $# -eq 2 ] || die 'Trailing arguments: %s' "$*"
 
 test $2 -ge $1 || die 'Maximum must not be smaller than minimum'
 

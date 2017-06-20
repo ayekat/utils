@@ -205,7 +205,7 @@ proxyfile="$(readlink -f "$proxyfile")"
 test -e "$proxyfile" || die 2 'No Proxyfile found'
 test -r "$proxyfile" || die 3 '%s: Permission denied' "$proxyfile"
 shift $argshift
-test $# -eq 0 || die $E_USER "Trailing arguments: $@"
+test $# -eq 0 || die $E_USER 'Trailing arguments: %s' "$*"
 
 texpath="$outpath/proxy.tex"
 generate_tex

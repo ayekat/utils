@@ -10,10 +10,6 @@ FALSE=0
 TRUE=1
 E_SUCCESS=0
 E_USER=1
-E_GENERAL=2
-E_INTERRUPT=127
-E_INTERNAL=255
-ANSI_BLACK="\033[30m"
 ANSI_RED="\033[31m"
 ANSI_GREEN="\033[32m"
 ANSI_YELLOW="\033[33m"
@@ -27,7 +23,7 @@ evilwhy()
 	depth=$3
 
 	# Padding:
-	padding="$(printf '%*s' $(($depth * $indent)) ' ')"
+	padding="$(printf '%*s' $((depth * indent)) ' ')"
 
 	# Text:
 	printf "$padding${esc_text}%s${esc_reset}\n" "$text"
@@ -42,7 +38,7 @@ why()
 	if [ $depth -eq 0 ]; then
 		padding=''
 	else
-		padding="$(printf '%*s' $(($depth * $indent)) ' ')"
+		padding="$(printf '%*s' $((depth * indent)) ' ')"
 	fi
 
 	# Colour:
@@ -68,20 +64,20 @@ why()
 	printf "\n"
 
 	# Recursively print reverse dependencies:
-	if [ "$reason" = 'dependency' ] || [ $verbose = $TRUE ]; then
+	if [ "$reason" = 'dependency' ] || [ $verbose -eq $TRUE ]; then
 		revdeps="$(expac -Q '%N' "$package")"
 		if [ $depth -lt $maxdepth ]; then
 			if [ -z "$revdeps" ]; then
 				if [ "$reason" = 'dependency' ]; then
-					evilwhy '<none>' "$esc_warn" $(($depth + 1))
+					evilwhy '<none>' "$esc_warn" $((depth + 1))
 				fi
 			else
 				for revdep in $revdeps; do
-					why "$revdep" $(($depth + 1))
+					why "$revdep" $((depth + 1))
 				done
 			fi
 		else
-			evilwhy '...' "$esc_maxdepth" $(($depth + 1))
+			evilwhy '...' "$esc_maxdepth" $((depth + 1))
 		fi
 	fi
 )
@@ -97,9 +93,9 @@ die()
 help()
 {
 	cat <<- EOF
-	$(basename $0): Show reverse dependency tree for a package
+	$(basename "$0"): Show reverse dependency tree for a package
 
-	Usage: $(basename $0) [OPTIONS] PACKAGE [..]
+	Usage: $(basename "$0") [OPTIONS] PACKAGE [..]
 
 	Options:
 	  -b, --brief         Don't show group next to package names
@@ -160,12 +156,14 @@ if [ "$colour" = 'always' ]; then
 	esc_explicit="$ANSI_GREEN"
 	esc_warn="$ANSI_RED"
 	esc_maxdepth="$ANSI_YELLOW"
+	esc_dependency="$ANSI_RESET"
 	esc_reset="$ANSI_RESET"
 else
 	esc_group=''
 	esc_explicit=''
 	esc_warn=''
 	esc_maxdepth=''
+	esc_dependency=''
 	esc_reset=''
 fi
 

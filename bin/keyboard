@@ -1,15 +1,14 @@
 #!/usr/bin/env sh
 
-tail -n +6 $(which $0)
+tail -n +6 "$(readlink -f "$0")" | cut -c 2-
 exit
 
-ayekat (CH_DE modified)
-
-mod | no caps lock                                     | caps lock                                        |
-----+--------------------------------------------------+--------------------------------------------------+
-    | abcdefghijklmnopqrstuvwxyz§1234567890'^ü¨öä$<,.- | ABCDEFGHIJKLMNOPQRSTUVWXYZ§1234567890'^Ü¨ÖÄ$<,.- |
-S   | ABCDEFGHIJKLMNOPQRSTUVWXYZ°+"*ç%&/()=?`è!éà£>;:_ | abcdefghijklmnopqrstuvwxyz°+"*Ç%&/()=?`È!ÉÀ£>;:_ |
-A   | æ”¢ð€đŋħ→   µnœþ@¶ßŧ↓“ł»«←¬|@#¼½¬|¢]}´~[]´{}\ · ̣ | Æ”¢Ð€ĐŊĦ→    NŒÞ@¶ßŦ↓“Ł»«←¬|@#¼½¬|¢]}´~[]´{}\ · ̣ |
-S A | Æ’©ÐEªŊĦı   ºNŒÞΩ®§Ŧ↑‘Ł><¥¬¡⅛£$⅜⅝⅞™±°¿˛°¯˝ˇ˘¦×÷˙ | æ’©ðEªŋħı   ºnœþΩ®§ŧ↑‘ł><¥¬¡⅛£$⅜⅝⅞™±°¿˛°¯˝ˇ˘¦×÷˙ |
-
-Unicode Snowman: u2603 ☃
+#ayekat (CH_DE modified)
+#
+#mod  nocaps                                            caps
+#     abcdefghijklmnopqrstuvwxyz§1234567890'^ü¨öä$<,.-  ABCDEFGHIJKLMNOPQRSTUVWXYZ§1234567890'^Ü¨ÖÄ$<,.-
+#S    ABCDEFGHIJKLMNOPQRSTUVWXYZ°+"*ç%&/()=?`è!éà£>;:_  abcdefghijklmnopqrstuvwxyz°+"*Ç%&/()=?`È!ÉÀ£>;:_
+#A    æ”¢ð€đŋħ→   µnœþ@¶ßŧ↓“ł»«←¬|@#¼½¬|¢]}´~[]´{}\ · ̣  Æ”¢Ð€ĐŊĦ→    NŒÞ@¶ßŦ↓“Ł»«←¬|@#¼½¬|¢]}´~[]´{}\ · ̣
+#S A  Æ’©ÐEªŊĦı   ºNŒÞΩ®§Ŧ↑‘Ł><¥¬¡⅛£$⅜⅝⅞™±°¿˛°¯˝ˇ˘¦×÷˙  æ’©ðEªŋħı   ºnœþΩ®§ŧ↑‘ł><¥¬¡⅛£$⅜⅝⅞™±°¿˛°¯˝ˇ˘¦×÷˙
+#
+#Unicode Snowman: u2603 ☃

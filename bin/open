@@ -1,12 +1,12 @@
-#!/bin/sh
+#!/usr/bin/env sh
+
 # Opens files with a default programme according to its MIME type.
+#
 # Written by ayekat on a cold morning in september 2014.
 
-[ -n "$XDG_CONFIG_HOME" ] || XDG_CONFIG_HOME=~/.config
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 confdir="$XDG_CONFIG_HOME/open"
 conffile="$confdir/openrc"
-
-#-------------------------------------------------------------------------------
 
 # Create empty configuration file.
 create_empty_config() {
@@ -92,8 +92,8 @@ assemble_command() {
 exit_value=0
 
 # check whether configuration exists
-[ -d "$confdir" ] || mkdir "$confdir"
-[ -f "$conffile" ] || create_empty_config
+test -d "$confdir" || mkdir "$confdir"
+test -f "$conffile" || create_empty_config
 
 # determine placeholder sequence
 placeholder="$(value_of 'placeholder')"

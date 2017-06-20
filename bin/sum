@@ -4,9 +4,9 @@
 APPNAME="$(basename "$0")"
 E_USER=1
 E_INTERN=255
-if case "$APPNAME" in (sum|avg) false ;; esac; then
-	die $E_INTERN 'Unknown command: %s' "$APPNAME"
-fi
+case "$APPNAME" in (sum|avg) ;; (*)
+	die $E_INTERN 'Please run this script as `sum` or `avg`'
+esac
 
 # Default values:
 precision=0
@@ -15,8 +15,7 @@ summands=''
 die()
 {
 	retval=$1; shift
-	format="$1"; shift
-	printf "$format\n" "$@" >&2
+	printf "$@" >&2; echo >&2
 	printf "Run with --help for usage.\n" >&2
 	exit $retval
 }
@@ -24,8 +23,8 @@ die()
 usage()
 {
 	case "$APPNAME" in
-		sum) echo "$APPNAME: sum up numeric values" ;;
-		avg) echo "$APPNAME: calculate average value of numeric values" ;;
+		(sum) echo "$APPNAME: sum up numeric values" ;;
+		(avg) echo "$APPNAME: calculate average value of numeric values" ;;
 	esac
 	cat <<- EOF
 
@@ -61,6 +60,6 @@ done
 
 # Calculate:
 case "$APPNAME" in
-	sum) dc -e "$precision k 0 $summands p" ;;
-	avg) dc -e "$precision k 0 $summands $# / p" ;;
+	(sum) dc -e "$precision k 0 $summands p" ;;
+	(avg) dc -e "$precision k 0 $summands $# / p" ;;
 esac

@@ -1,13 +1,16 @@
 #!/usr/bin/env sh
+
 # Converts a file's audio to the AAC encoding, preserving all tags.
 # It uses ffmpeg to decode and NeroAacEnc to encode the file.
+#
 # Written by ayekat on an annoying afternoon with iTunes in February 2015.
 
+set -e
+
 check_command() {
-	which "$1" 1>/dev/null 2>/dev/null
-	if [ $? -ne 0 ]; then
+	if ! which "$1" 1>/dev/null 2>&1; then
 		echo "$1 does not exist" >&2
-		exit 1
+		exit 127
 	fi
 }
 

@@ -1,27 +1,27 @@
 # Maintainer: ayekat <takeya@bluewin.ch>
 
-pkgbase='ayekat-utils-deps'
-pkgname=('ayekat-utils-deps' 'ayekat-utils-deps-desktop')
+pkgbase=ayekat-utils-deps
+pkgname=(ayekat-utils-deps ayekat-utils-deps-desktop)
 pkgver=2017.06.08
-pkgrel=2
+pkgrel=3
 arch=('any')
 url='https://github.com/ayekat/utils'
 license=('GPL3')
 
 package_ayekat-utils-deps() {
-  pkgname='ayekat-utils-deps'
+  pkgname=ayekat-utils-deps
   pkgdesc="Dependencies for ayekat's utilities"
-  depends=('bc' 'coreutils' 'curl' 'diffutils' 'file' 'expac' 'git' 'lsof'
-           'perl' 'psmisc' 'sh' 'tmux')
+  depends=(bc coreutils curl diffutils file expac git lsof perl psmisc sh tmux
+           zsh)
 }
 
 package_ayekat-utils-deps-desktop() {
-  pkgname='ayekat-utils-deps-desktop'
+  pkgname=ayekat-utils-deps-desktop
   pkgdesc="Desktop dependencies for ayekat's utilities"
-  depends=('argyllcms' 'ayekat-utils-deps' 'dmenu' 'exiv2' 'ffmpeg'
-           'inotify-tools' 'pass' 'scrot' 'xorg-xmodmap' 'xorg-xinput'
-           'xorg-xrandr' 'xtrlock')
-  optdepends=('beep: bleep'
+  depends=(argyllcms ayekat-utils-deps dmenu exiv2 ffmpeg inotify-tools pass
+           scrot xorg-xmodmap xorg-xinput xorg-xrandr xtrlock)
+  optdepends=('bash: bleep'
+              'beep: bleep'
               'freerdp: RDP'
               'neroaac: encode AAC audio')
 }

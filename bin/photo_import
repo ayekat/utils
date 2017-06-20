@@ -9,11 +9,10 @@ case "$ext" in
 esac
 
 # Determine date-name:
-name=$(exiv2 "$1" | grep '^Image timestamp' | \
-       sed -e 's/^[^:]\+: //g;s/://g;s/ /_/g')
+name="$(exiv2 "$1" | grep '^Image timestamp' | \
+        sed -e 's/^[^:]\+: //g;s/://g;s/ /_/g')"
 if [ -z "$name" ]; then
-	echo "Empty date-name for $1" >&2
-	exit 1
+	echo "Empty date-name for $1" >&2; exit 1
 fi
 
 # Check for existence:
@@ -25,7 +24,7 @@ while true; do
 		filename="${name}_${i}.${ext}"
 	fi
 	if [ -e "$filename" ]; then
-		i=$(($i + 1))
+		i=$((i + 1))
 		echo "$filename exists, incrementing counter to $i"
 	else
 		break

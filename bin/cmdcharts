@@ -1,70 +1,69 @@
 #!/usr/bin/env sh
 
-# Print most used commands.
+# Print most used shell commands.
 
-SCRIPTFILE="$(basename "$0")"
+set -e
+
+# Constants:
+RUNNAME="$(basename "$0")"
+E_SUCCESS=0
+E_USER=1
+E_MISC=2
+E_INTERNAL=4
 
 die()
 {
-	die_retval=$1
-	die_format="$2"
+	retval=$1
+	format="$2"
 	shift 2
-	printf "$die_format" "$@" >&2
+	printf "$format" "$@" >&2; echo >&2
 	exit $retval
 }
 
 chart()
 {
-	[ -n "$HISTFILE" ] || die 2 "HISTFILE undefined: can't locate shell history"
-	[ -e "$HISTFILE" ] || die 2 '%s not found' "$HISTFILE"
-	if [ -z "$COMMAND" ]; then
+	test -n "$HISTFILE" || die $E_MISC "HISTFILE undefined: can't locate shell history"
+	test -e "$HISTFILE" || die $E_MISC '%s not found' "$HISTFILE"
+	if [ -z "$command" ]; then
 		awk '{print $1}' < "$HISTFILE"
 	else
-		grep --text "^$COMMAND" "$HISTFILE" | awk "{print \$$(($COMMANDLEN+1))}"
-	fi | sort | uniq -c | sort -rn | head -n "$NLINES"
+		grep --text "^$command" "$HISTFILE" | awk "{print \$$((commandlen + 1))}"
+	fi | sort | uniq -c | sort -rn | head -n "$nlines"
 }
 
 usage()
 {
 	cat >&2 <<- EOF
-	$SCRIPTFILE: list most used commands
+	$RUNNAME: list most used commands
 
-	Usage: $SCRIPTFILE [OPTIONS] [COMMAND]
+	Usage: $RUNNAME [OPTIONS] [COMMAND]
 
 	Options:
 	    -h            Display this help
-	    -n NLINES     List NLINES most used commands [default=$NLINES]
+	    -n NLINES     List NLINES most used commands [default=$nlines]
 
 	Command:
 	    If present, display commands with COMMAND as suffix (e.g. sudo, git, vim)
 	EOF
-	exit 1
 }
 
-main()
-{
-	NLINES=10
-	COMMAND=''
+# Options:
+nlines=10
+command=''
+while getopts :hn: opt; do
+	case "$opt" in
+		h) usage; exit $E_SUCCESS ;;
+		n) nlines="$OPTARG" ;;
+		'?') die $E_USER 'Illegal option: -%s' "$OPTARG" ;;
+		*) die $E_INTERNAL 'Internal error' ;;
+	esac
+done
+shift $((OPTIND - 1))
 
-	# Options
-	while getopts hn: opt; do
-		case "$opt" in
-			h) usage ;;
-			n) NLINES="$OPTARG" ;;
-			*) usage ;;
-		esac
-	done
-	shift $(($OPTIND - 1))
+# Command:
+command="$*"
+commandlen=$#
+[ -n "$command" ] && shift
 
-	# Command:
-	COMMAND="$@"
-	COMMANDLEN=$#
-	[ -n "$COMMAND" ] && shift
-
-	# Test validity:
-	#test $# -eq 0 || die 1 'Trailing arguments: %s' "$@"
-
-	chart
-}
-
-main "$@"
+# Chart:
+chart

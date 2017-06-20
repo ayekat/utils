@@ -20,5 +20,5 @@ for p in $icc_profile; do
 		continue
 	fi
 	dispwin -d $i "$icc_path"
-	i=$(($i+1))
+	i=$((i + 1))
 done

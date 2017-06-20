@@ -4,20 +4,18 @@
 # again to support HDMI screens in april 2014.
 
 # basic values
-appname=$(basename $0)
+appname="$(basename "$0")"
 cmd="$1"
 shift
 
 # screen names
-scrname='unknown'
-lcdname='LVDS1'
-[ "$appname" = 'vga' ] && scrname='VGA1'
-[ "$appname" = 'hdmi' ] && scrname='HDMI1'
-[ "$appname" = 'dp' ] && scrname='DP1'
-if [ "$scrname" = 'unknown' ]; then
-	echo "Please invoke this script with 'vga' or 'hdmi'." >&2
-	exit 1
-fi
+lcdname=LVDS1
+case "$appname" in
+	(vga) scrname=VGA1 ;;
+	(hdmi) scrname=HDMI1 ;;
+	(dp) scrname=DP1 ;;
+	(*) echo "Please invoke this script as 'vga', 'hdmi' or 'dp'." >&2; exit 1 ;;
+esac
 
 scr_add() {
 	# mode:
@@ -30,10 +28,10 @@ scr_add() {
 	# position:
 	position="$1"
 	case "$position" in
-		right|left) position="${position}-of";;
+		(right|left) position="$position-of";;
 	esac
 	xrandr --output "$lcdname" --auto || exit 1
-	xrandr --output "$scrname" --auto --${position} "$lcdname" --primary || exit 1
+	xrandr --output "$scrname" --auto --"$position" "$lcdname" --primary || exit 1
 	scr_setup
 }
 
@@ -54,14 +52,14 @@ scr_help() {
 
 # detect action
 case "$cmd" in
-	add)
+	(add)
 		[ $# -ne 1 ] && { vga_help; exit 1; }
 		scr_add "$@";;
 
-	remove)
+	(remove)
 		scr_remove;;
 
-	*)
+	(*)
 		scr_help
 esac
 

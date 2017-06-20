@@ -5,24 +5,24 @@
 
 # Written by ayekat on a cool monday afternoon in may 2016
 
-ETCDIR="${ETCDIR:-"$HOME/.local/etc"}"
-CONFDIR="$ETCDIR/openvpn"
-APPNAME="$(basename "$0")"
+HOME="${HOME:-$(getent passwd "$(id -u)" | cut -d: -f6)}"
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 
+CONFDIR="$XDG_CONFIG_HOME/openvpn"
+APPNAME="$(basename "$0")"
 E_SUCCESS=0
 E_FAIL=1
 E_USER=2
 E_PERM=3
 
-usage() { echo "Usage: $APPNAME [OPTIONS] HOST"; }
 
-help()
+usage()
 {
-	echo "$APPNAME: Establish a VPN connection to a host"
-	echo
-	usage
-	echo
 	cat <<- EOF
+	$APPNAME: Establish a VPN connection to a host
+
+	Usage: $APPNAME [OPTIONS] HOST
+
 	Options:
 	  -h, --help      Display this message and exit
 
@@ -33,16 +33,10 @@ help()
 
 die()
 {
-	retval_str=$1
-	retval=$(eval "echo \$$retval_str")
-	shift
-	format="$1"
-	if [ -n "$format" ]; then
-		shift
-		printf "\033[31m$retval_str\033[0m $format\n" "$@" >&2
-	fi
-	if [ $retval = E_USER ]; then
-		usage >&2
+	retval=$1; shift
+	printf "$@" >&2; echo >&2
+	if [ $retval -eq $E_USER ]; then
+		printf 'Run with -h for help.\n' >&2
 	fi
 	exit $retval
 }
@@ -50,21 +44,21 @@ die()
 # Read arguments:
 while [ $# -gt 0 ]; do
 	case "$1" in
-		-h|--help) help; exit 0 ;;
-		-*) die E_USER "Unknown option: -$1" ;;
-		*) break ;;
+		(-h|--help) usage; exit $E_SUCCESS ;;
+		(-*) die $E_USER 'Unknown option: %s' "$1" ;;
+		(*) break ;;
 	esac
 	shift
 done
 host="$1"
-test -n "$host" || die E_USER "Please specify a host"
+test -n "$host" || die $E_USER 'Please specify a host'
 
 # Check environment:
 hostdir="$CONFDIR/$host"
-test -d "$hostdir" || die E_FAIL "$hostdir: No such directory"
-test -r "$hostdir" || die E_PERM "$hostdir: Permission denied"
-hostfile="$hostdir/${host}.ovpn"
-test -e "$hostfile" || die E_FAIL "$hostfile: No such file"
+test -d "$hostdir" || die $E_FAIL '%s: No such directory' "$hostdir"
+test -r "$hostdir" || die $E_PERM '%s: Permission denied' "$hostdir"
+hostfile="$hostdir/$host.ovpn"
+test -e "$hostfile" || die $E_FAIL '%s: No such file' "$hostfile"
 
 # Open RDP connection:
 cd "$hostdir"

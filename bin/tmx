@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-#
+
 # This script is responsible for starting a new tmux session and attaching it to
 # the windows of an already running one. The reason this cannot be done by a
 # simple 'tmux attach' is that tmux is not sophisticated enough to allow
@@ -17,8 +17,9 @@
 
 set -e
 
-# Configuration location: Check XDG first:
-test -n "$XDG_CONFIG_HOME" || XDG_CONFIG_HOME="$HOME/.config"
+HOME="${HOME:-$(getent passwd "$(id -u)" | cut -d: -f6)}"
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
 tmux_config=$XDG_CONFIG_HOME/tmux/config
 test -e "$tmux_config" || tmux_config="$HOME/.tmux.conf"
 

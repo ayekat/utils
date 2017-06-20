@@ -1,15 +1,16 @@
 #!/usr/bin/env sh
 
 # Simple frontend to xfreerdp - takes a hostname and reads the corresponding
-# configuration file from $HOME/.local/etc/rdp/
-
+# configuration file from $XDG_CONFIG_HOME/freerdp/hosts
+#
 # Written by ayekat on a cool monday morning in may 2016
 
+HOME="${HOME:-$(getent passwd "$(id -u)" | cut -d: -f6)}"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
 CONFDIR="$XDG_CONFIG_HOME/freerdp/hosts"
 APPNAME="$(basename "$0")"
-EDITOR="${EDITOR:-/usr/bin/nano}"
-
+EDITOR="${VISUAL:-${EDITOR:-/usr/bin/vi}}"
 E_SUCCESS=0
 E_FAIL=1
 E_USER=2
@@ -17,15 +18,13 @@ E_PERM=3
 TRUE=1
 FALSE=0
 
-usage() { echo "Usage: $APPNAME [OPTIONS] HOST"; }
-
-help()
+usage()
 {
-	echo "$APPNAME: Establish an RDP connection to a host"
-	echo
-	usage
-	echo
 	cat <<- EOF
+	$APPNAME: Establish an RDP connection to a host
+
+	Usage: $APPNAME [OPTIONS] HOST
+
 	Options:
 	  -e, --edit        Launch editor for the host config file, then exit
 	  -h, --help        Display this message and exit
@@ -39,16 +38,12 @@ help()
 
 die()
 {
-	retval_str=$1
-	retval=$(eval "echo \$$retval_str")
-	shift
-	format="$1"
-	if [ -n "$format" ]; then
-		shift
-		printf "\033[31m$retval_str\033[0m $format\n" "$@" >&2
+	retval=$1; shift
+	if [ $# -gt 0 ]; then
+		printf "$@" >&2; echo >&2
 	fi
 	if [ $retval -eq $E_USER ]; then
-		usage >&2
+		printf 'Run with --help for help.\n' >&2
 	fi
 	exit $retval
 }
@@ -66,23 +61,27 @@ options=''
 edit=$FALSE
 while [ $# -gt 0 ]; do
 	case "$1" in
-		-e|--edit) edit=$TRUE ;;
-		-h|--help) help; exit 0 ;;
-		-l|--list) list; exit 0 ;;
-		-o|--option) shift; options="$options $1" ;;
-		-*) die E_USER "Unknown option: -$1" ;;
-		*) break ;;
+		(-e|--edit) edit=$TRUE ;;
+		(-h|--help) usage; exit $E_SUCCESS ;;
+		(-l|--list) list; exit $E_SUCCESS ;;
+		(-o|--option) test $# -ge 2 || die $E_USER 'Missing argument for %s' "$1"
+			          shift; options="$options $1" ;;
+		(-*) die $E_USER 'Unknown option: %s' "$1" ;;
+		(*) break ;;
 	esac
 	shift
 done
 host="$1"
-test -n "$host" || die E_USER "Please specify a host"
+test -n "$host" || die $E_USER 'Please specify a host'
+shift
+
+test $# -eq 0 || die $E_USER 'Trailing arguments: %s' "$*"
 
 # Check environment:
-test -d "$CONFDIR" || die E_FAIL "$CONFDIR: No such directory"
-test -r "$CONFDIR" || die E_PERM "$CONFDIR: Permission denied"
+test -d "$CONFDIR" || die $E_FAIL '%s: No such directory' "$CONFDIR"
+test -r "$CONFDIR" || die $E_PERM '%s: Permission denied' "$CONFDIR"
 hostfile="$CONFDIR/${host}.rdp"
-test -e "$hostfile" || die E_FAIL "$hostfile: No such file"
+test -e "$hostfile" || die $E_FAIL '%s: No such file' "$hostfile"
 
 if [ $edit -eq $TRUE ]; then
 	# Edit RDP connection:

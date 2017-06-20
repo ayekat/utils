@@ -4,8 +4,12 @@ XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 CONFIG="$XDG_CONFIG_HOME/inotifywatchdog/config"
 
 if [ ! -e "$CONFIG" ]; then
-	printf "%s: No such file\n" "$CONFIG" >&2
+	printf '%s: No such file\n' "$CONFIG" >&2
 	exit 1
+fi
+if [ ! -r "$CONFIG" ]; then
+	printf '%s: Permission denied\n' "$CONFIG" >&2
+	exit 2
 fi
 
 inotifywait \
