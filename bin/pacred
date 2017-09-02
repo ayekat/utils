@@ -3,4 +3,7 @@
 # dependency of another package (i.e. "potentially redundantly installed
 # packages").
 
-exec diff <(pacman -Qqe) <(pacman -Qqett) | grep '^<' | cut -d' ' -f2
+exec diff \
+	<(pacman -Qqe | sort) \
+	<({ pacman -Qqett && pacman -Qqg base-devel; } | sort -u) \
+	| grep '^<' | cut -d' ' -f2
