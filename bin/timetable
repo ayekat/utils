@@ -1,3 +1,3 @@
 #!/usr/bin/env sh
 
-cat "$HOME"/epfl/timetable
+cat "$HOME"/epfl/orga/timetable
