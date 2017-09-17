@@ -4,9 +4,9 @@ HOSTNAME="${HOSTNAME:-$(hostname)}"
 XDG_LIB_HOME="${XDG_LIB_HOME:-$HOME/.local/lib}"
 
 case "$HOSTNAME" in
-	ixh)    icc_profile='lenovo_thinkpad_x230' ;;
-	phobia) icc_profile='asus asus' ;;
-	*)      icc_profile='';;
+	chirschi) icc_profile='lenovo_thinkpad_x230' ;;
+	phobia)   icc_profile='asus asus' ;;
+	*)        icc_profile='';;
 esac
 if [ -z "$icc_profile" ]; then
 	echo "no colour profile defined for $HOSTNAME" >&2
