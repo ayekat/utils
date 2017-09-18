@@ -5,6 +5,8 @@
 #
 # Written by ayekat on a cool monday morning in may 2016
 
+set -e
+
 HOME="${HOME:-$(getent passwd "$(id -u)" | cut -d: -f6)}"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 
