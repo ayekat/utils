@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 #define FATAL(...) { fprintf(stderr, __VA_ARGS__); exit(EXIT_FAILURE); }
