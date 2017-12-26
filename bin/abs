@@ -1,20 +1,30 @@
 #!/usr/bin/env sh
 # Download Arch Linux package sources to a directory.
 
-if [ -n "$1" ]; then
-	repo="$(expac -S '%r' "$1")"
-	base="$(expac -S '%e' "$1")"
-	if [ -z "$base" ] || [ "$base" = '(null)' ]; then
-		base="$1"
-	fi
-	case "$repo" in
-		community|multilib) repo=community ;;
-		core|extra) repo=packages ;;
-		*) echo "unknown repository for $base" >&2; exit 1 ;;
-	esac
-	git clone "https://git.archlinux.org/svntogit/${repo}.git" \
-		--single-branch -b packages/"$base" "$base"
-else
-	echo "Please specify a package name" >&2
+if [ -z "$1" ]; then
+	echo 'Please specify a package name' >&2
 	exit 1
 fi
+
+repo="$(expac -S '%r' "$1" | grep 'core\|extra\|community\|multilib')"
+if [ -z "$repo" ]; then
+	echo "No repository contains $1" >&2
+	exit 2
+fi
+
+base="$(expac -S '%e' "$repo/$1" | grep -v '(null)')"
+if [ -z "$base" ]; then
+	base="$1"
+fi
+
+case "$repo" in
+	community|multilib) repo=community ;;
+	core|extra) repo=packages ;;
+	*) echo "Unknown repository $repo for $base ($1)" >&2; exit 1 ;;
+esac
+
+url="https://git.archlinux.org/svntogit/$repo.git"
+branch="packages/$base"
+destdir="$base"
+
+exec git clone "$url" --single-branch -b "$branch" "$destdir"
