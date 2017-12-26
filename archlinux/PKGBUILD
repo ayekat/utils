@@ -2,17 +2,16 @@
 
 pkgbase=ayekat-utils-deps
 pkgname=(ayekat-utils-deps ayekat-utils-deps-desktop)
-pkgver=2017.11.02
+pkgver=2017.12.26
 pkgrel=1
-arch=('any')
+arch=(any)
 url='https://github.com/ayekat/utils'
-license=('GPL3')
 
 package_ayekat-utils-deps() {
   pkgname=ayekat-utils-deps
   pkgdesc="Dependencies for ayekat's utilities"
-  depends=(bc coreutils curl diffutils file expac git lsof perl procps sh tmux
-           zsh)
+  depends=(bc coreutils curl diffutils file expac git grep lsof perl procps sh
+           tmux zsh)
 }
 
 package_ayekat-utils-deps-desktop() {
