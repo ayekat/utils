@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+
+set -eu
+
+# Check that we're not running in tmux already:
+test -z "${TMUX:-}" || tmux # should error out due to `set -e`
+
+# Check that base session exists:
+base="base_${1:-default}"
+tmux has-session -t "$base" 2>/dev/null || tmux new-session -d -s "$base"
+
+# Create view session and link to base session:
+view="view_$(date '+%Y%m%d%H%M%S')" # FIXME more robust "unique" view ID
+tmux new-session -s "$view" -t "$base"
+
+# Kill detached view sessions linked to our base session:
+for s in $(tmux ls -F '#{session_group}:#{session_name}:#{session_attached}'); do
+	case "$s" in ($base:*:0) ;; (*) continue; esac
+	case "$s" in ($base:$base:*) continue ;; esac
+	s="${s#$base:}"
+	s="${s%:0}"
+	tmux kill-session -t "$s"
+done
