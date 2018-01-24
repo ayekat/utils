@@ -14,7 +14,6 @@ HOSTNAME="$(uname -n)"
 
 # Pooch information:
 POOCHCMD="$(basename "$0")"
-POOCHTS="$(printf '%.5f' "$(date '+%s.%N')")"
 POOCHTMP="$XDG_RUNTIME_DIR/$POOCHCMD"
 
 # Constants:
@@ -107,12 +106,13 @@ move_mail()
 (
 	mailpath="$1"
 	destfolderpath="$2"
+	timestamp="$(printf '%.5f' "$(date '+%s.%N')")"
 	protocol=2 # TODO: what's this?
 	flag=S     # TODO: what's this?
 	serial=1
 
 	while true; do
-		destpath="$destfolderpath/${POOCHTS}_$serial.$HOSTNAME:$protocol,$flag"
+		destpath="$destfolderpath/${timestamp}_$serial.$HOSTNAME:$protocol,$flag"
 		if ! move "$mailpath" "$destpath"; then
 			# Move failed; handle:
 			moveretval=$?
