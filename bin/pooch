@@ -22,7 +22,6 @@ E_SUCCESS=0
 E_USER=1
 E_FILESYSTEM=2
 E_EXISTS=4
-E_EVENT=4
 E_MATCH=5
 E_INTERNAL=13
 TRUE=1
@@ -255,11 +254,12 @@ foldernewpath="$(readlink -f "$folderpath/new")"
 test_directory -w "$foldernewpath" || exit $?
 
 # Watch directory:
-while true; do
-	inotifywait --event moved_to --format '%w%f' "$foldernewpath" \
-	| if read -r mailpath; then
-		filter "$mailpath"
-	else
-		die $E_EVENT 'Could not read event from inotify handler'
-	fi
+inotifywait \
+	--monitor \
+	--event moved_to \
+	--format '%w%f' \
+	"$foldernewpath" \
+	2>/dev/null \
+| while read -r mailpath; do
+	filter "$mailpath"
 done
