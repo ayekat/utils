@@ -13,8 +13,9 @@ XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 HOSTNAME="$(uname -n)"
 
 # Pooch information:
+POOCHNAME=pooch
 POOCHCMD="$(basename "$0")"
-POOCHTMP="$XDG_RUNTIME_DIR/$POOCHCMD"
+POOCHTMP="$XDG_RUNTIME_DIR/$POOCHNAME"
 
 # Constants:
 E_SUCCESS=0
@@ -59,7 +60,7 @@ check_rulefile()
 check_rules()
 (
 	headerpath="$1"
-	rulesdir="$XDG_CONFIG_HOME/pooch/$account"
+	rulesdir="$XDG_CONFIG_HOME/$POOCHNAME/$account"
 	test_directory "$rulesdir" || exit $E_MATCH
 	for rulefile in "$rulesdir"/*; do
 		test -r "$rulefile" || break # fuck shell globbing
@@ -139,7 +140,12 @@ filter()
 	headerpath="$(extract_header "$mailpath")"
 
 	# Check rules:
-	if destfolder="$(check_rules "$headerpath")"; then
+	if ! destfolder="$(check_rules "$headerpath")" \
+	|| [ "$destfolder" = "$folder" ]; then
+		# No rule matched (or rule puts it in same folder):
+		destfolder="$folder"
+	else
+		# Rule mached:
 		destfolderpath="$accountpath/$destfolder/new"
 		if [ $testrun -eq $TRUE ]; then
 			echo "$mailpath → $destfolderpath"
@@ -147,8 +153,6 @@ filter()
 			warn 'Could not move %s to %s' "$mailpath" "$destfolderpath"
 			destfolder="$folder"
 		fi
-	else
-		destfolder="$folder"
 	fi
 
 	# Delete header:
@@ -160,7 +164,7 @@ filter()
 
 notify()
 {
-	notify-send "pooch ($account)" "$1"
+	notify-send "$POOCHNAME ($account)" "$1"
 }
 
 test_directory()
@@ -248,18 +252,16 @@ if [ $have_mailpath -eq $TRUE ]; then
 	exit $E_SUCCESS
 fi
 
-folderpath="$(readlink -f "$accountpath/$folder")"
+folderpath="$(readlink -f "$accountpath/$folder/new")"
 test_directory -w "$folderpath" || exit $?
-foldernewpath="$(readlink -f "$folderpath/new")"
-test_directory -w "$foldernewpath" || exit $?
 
 # Watch directory:
 inotifywait \
+	--quiet \
 	--monitor \
 	--event moved_to \
 	--format '%w%f' \
-	"$foldernewpath" \
-	2>/dev/null \
+	"$folderpath" \
 | while read -r mailpath; do
 	filter "$mailpath"
 done
