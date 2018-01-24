@@ -40,20 +40,16 @@ check_rulefile()
 	rulefile="$2"
 
 	destfolder="$(head -n1 "$rulefile")"
-	if [ $debug -eq $TRUE ]; then
-		echo "checking for $destfolder" >&2
-	fi
+	debug 'Checking for %s' "$destfolder" >&2
 	IFS=
 	tail -n +2 "$rulefile" | while read -r rule; do
 		if ! grep -E "$rule" "$headerpath" >/dev/null 2>&1; then
-			if [ $debug -eq $TRUE ]; then
-				echo "→ rule failed: $rule" >&2
-			fi
+			debug '\033[33m→ Rule failed: %s\033[0m' "$rule" >&2
 			exit $E_MATCH
-		elif [ $debug -eq $TRUE ]; then
-			echo "→ rule matched: $rule" >&2
 		fi
+		debug '\033[32m→ Rule matched: %s\033[0m' "$rule" >&2
 	done
+	debug '\033[32m→ Moving to %s\033[0m' "$destfolder"
 	echo "$destfolder"
 )
 
@@ -80,12 +76,15 @@ extract_header()
 		|| die $E_FILESYSTEM 'Could not create temporary file for header'
 
 	# TODO: merge multi-line headers
+	nlines=0
 	IFS=
 	while read -r line; do
 		test -n "$line" || break
+		nlines=$((nlines + 1))
 		echo "$line" >> "$headerpath"
 	done <"$mailpath"
 
+	debug 'Stored header (%d lines) as %s' $nlines "$headerpath" >&2
 	echo "$headerpath"
 )
 
@@ -101,6 +100,7 @@ move()
 	# so they can react).
 	ln -PT "$1" "$2" || exit $E_EXISTS
 	rm "$1" || die $E_FILESYSTEM '%s: Move failed for unknown reasons' "$1"
+	debug 'move %s → %s' "$1" "$2"
 )
 
 move_mail()
@@ -156,6 +156,7 @@ filter()
 	fi
 
 	# Delete header:
+	debug 'Removing header %s' "$headerpath"
 	rm "$headerpath"
 
 	# Send notification:
@@ -191,7 +192,16 @@ die()
 
 warn()
 {
-	printf "$@" >&2; echo >&2
+	printf "$@" >&2
+	echo >&2
+}
+
+debug()
+{
+	if [ $debug -eq $TRUE ]; then
+		printf "$@"
+		echo
+	fi
 }
 
 print_help()
@@ -215,7 +225,7 @@ print_help()
 while getopts :b:dhm:tw: opt; do
 	case "$opt" in
 		(b) basedir="$OPTARG" ;;
-		(d) debug=$TRUE ;;
+		(d) debug=$TRUE; debug 'Displaying debug messages' ;;
 		(h) print_help; exit $E_SUCCESS ;;
 		(m) have_mailpath=$TRUE; mailpath="$OPTARG" ;;
 		(t) testrun=$TRUE ;;
@@ -256,8 +266,9 @@ folderpath="$(readlink -f "$accountpath/$folder/new")"
 test_directory -w "$folderpath" || exit $?
 
 # Watch directory:
+test $debug -eq $TRUE || quietarg='--quiet'
 inotifywait \
-	--quiet \
+	${quietarg:-} \
 	--monitor \
 	--event moved_to \
 	--format '%w%f' \
