@@ -104,15 +104,27 @@ move()
 (
 	# There is no atomic way with `mv` for moving a file only if the destination
 	# does not exist and failing otherwise. Here we use ln (which *does* fail if
-	# the target exists).
-	# There is still a (very unlikely) race condition, though: if the underlying
-	# filesystem somehow turns read-only between the linking and the removing,
-	# we end up with two hard links to the same file. But that is still less bad
-	# than overwriting files (and we can cascade an error message up to the user
-	# so they can react).
+	# the target exists). There are still (very unlikely) race conditions,
+	# though:
+	# 1. If the underlying filesystem somehow turns read-only between the
+	#    linking and the removing, we end up with two hard links to the same
+	#    file. This still less of a problem than overwriting files (and we can
+	#    cascade an error message up to the user so they can react).
+	# 2. If a target does not exist, but ln still fails, and then the target is
+	#    created before we check for its existence, we return E_EXISTS even if
+	#    the reason for the failure was a different one. Given that this
+	#    function is called repeatedly until it returns something else than
+	#    E_EXISTS, this may lead to an infinite loop. It is thus recommended to
+	#    keep an upper bound of number of calls to this function.
 	if [ $testrun -eq $FALSE ]; then
-		ln -PT "$1" "$2" || exit $E_EXISTS
-		rm "$1" || die $E_FILESYSTEM '%s: Move failed for unknown reasons' "$1"
+		if ! ln -PT "$1" "$2"; then
+			if [ -e "$2" ]; then
+				exit $E_EXISTS
+			else
+				exit $E_FILESYSTEM
+			fi
+		fi
+		rm "$1" || exit $E_FILESYSTEM
 	fi
 	debug 'move %s → %s' "$1" "$2"
 )
@@ -126,24 +138,25 @@ move_mail()
 	flag=''    # TODO: adopt from original file
 	serial=1
 
-	while true; do
+	test_directory -w "$destfolderpath" || exit $?
+
+	while [ $serial -lt 1024 ]; do
 		destpath="$destfolderpath/${timestamp}_$serial.$HOSTNAME:$protocol,$flag"
-		if ! move "$mailpath" "$destpath"; then
-			# Move failed; handle:
-			moveretval=$?
-			if [ $moveretval -eq $E_EXISTS ]; then
-				# Serial number occupied; try next:
+		moveretval=$E_SUCCESS
+		move "$mailpath" "$destpath" || moveretval=$?
+		case $moveretval in
+			($E_SUCCESS)
+				# Move succeeded; we're done:
+				break ;;
+			($E_EXISTS)
+				# File exists; try next serial:
 				serial=$((serial + 1))
-				continue
-			else
-				# Something went wrong; exit:
-				warn 'Could not move %s to %s' "$mailpath" "$destpath"
+				continue ;;
+			($E_FILESYSTEM)
+				# Some other FS-related issue; abort:
+				warn 'Could not move %s → %s' "$mailpath" "$destpath"
 				exit $moveretval
-			fi
-		else
-			# Move succeeded; we're done:
-			break
-		fi
+		esac
 	done
 )
 
@@ -181,18 +194,22 @@ filter()
 
 notify()
 {
-	notify-send "$POOCHNAME ($account)" "$1"
+	notify-send "New Mail ($account)" "$1"
 }
 
 test_directory()
 (
+	writable=$FALSE
 	if [ "x$1" = 'x-w' ]; then
+		writable=$TRUE
 		shift
-		test -w "$1" || die $E_FILESYSTEM '%s: Write permission denied' "$1"
 	fi
-	test -e "$1" || die $E_FILESYSTEM '%s: Directory not found' "$1"
+	test -e "$1" || die $E_FILESYSTEM '%s: Directory does not exist' "$1"
 	test -d "$1" || die $E_FILESYSTEM '%s: Not a directory' "$1"
 	test -r "$1" || die $E_FILESYSTEM '%s: Read permission denied' "$1"
+	if [ $writable -eq $TRUE ]; then
+		test -w "$1" || die $E_FILESYSTEM '%s: Write permission denied' "$1"
+	fi
 	test -x "$1" || die $E_FILESYSTEM '%s: Access denied' "$1"
 )
 
