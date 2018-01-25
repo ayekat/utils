@@ -49,7 +49,7 @@ check_rulefile()
 		fi
 		debug '\033[32m→ Rule matched: %s\033[0m' "$rule" >&2
 	done
-	debug '\033[32m→ Moving to %s\033[0m' "$destfolder"
+	debug '\033[32m→ Moving to %s\033[0m' "$destfolder" >&2
 	echo "$destfolder"
 )
 
