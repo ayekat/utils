@@ -192,8 +192,10 @@ filter()
 		rm "$headerpath"
 	fi
 
-	# Send notification:
-	notify "$destfolder"
+	# Send notification (omit if we use one-shot mode and it doesn't move):
+	if [ $have_mailpath -eq $FALSE ] || [ "$destfolder" != "$folder" ]; then
+		notify "$destfolder"
+	fi
 }
 
 notify()
