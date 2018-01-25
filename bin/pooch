@@ -151,7 +151,7 @@ move_mail()
 		case $moveretval in
 			($E_SUCCESS)
 				# Move succeeded; we're done:
-				break ;;
+				exit $E_SUCCESS ;;
 			($E_EXISTS)
 				# File exists; try next serial:
 				continue ;;
