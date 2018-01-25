@@ -32,6 +32,7 @@ basedir="$XDG_DATA_HOME/mail"
 folder=INBOX
 have_mailpath=$FALSE
 debug=$FALSE
+keep_headers=$FALSE
 testrun=$FALSE
 
 check_rulefile()
@@ -156,8 +157,12 @@ filter()
 	fi
 
 	# Delete header:
-	debug 'Removing header %s' "$headerpath"
-	rm "$headerpath"
+	if [ $keep_headers -eq $TRUE ]; then
+		debug 'Keeping header %s' "$headerpath"
+	else
+		debug 'Removing header %s' "$headerpath"
+		rm "$headerpath"
+	fi
 
 	# Send notification:
 	notify "$destfolder"
@@ -215,6 +220,7 @@ print_help()
 	  -b PATH    Use PATH as base directory for accounts [default=$basedir]
 	  -d         Enable debug mode
 	  -h         Display this help and exit
+	  -k         Don't delete headers from $POOCHTMP after processing mails
 	  -m FILE    Handle mail file FILE and then exit
 	  -t         Test run (don't actually rename files, but only print)
 	  -w FOLDER  Watch FOLDER for new mails [default=$folder]
@@ -222,11 +228,12 @@ print_help()
 }
 
 # Read command line options:
-while getopts :b:dhm:tw: opt; do
+while getopts :b:dhkm:tw: opt; do
 	case "$opt" in
 		(b) basedir="$OPTARG" ;;
 		(d) debug=$TRUE; debug 'Displaying debug messages' ;;
 		(h) print_help; exit $E_SUCCESS ;;
+		(k) keep_headers=$TRUE ;;
 		(m) have_mailpath=$TRUE; mailpath="$OPTARG" ;;
 		(t) testrun=$TRUE ;;
 		(w) folder="$OPTARG" ;;
