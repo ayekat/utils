@@ -28,7 +28,7 @@ TRUE=1
 FALSE=0
 
 # Default values:
-basedir="$XDG_DATA_HOME/mail"
+basepath="$XDG_DATA_HOME/mail"
 folder=INBOX
 have_mailpath=$FALSE
 debug=$FALSE
@@ -40,8 +40,11 @@ check_rulefile()
 	headerpath="$1"
 	rulefile="$2"
 
+	# Destination folder for this rule:
 	destfolder="$(head -n1 "$rulefile")"
 	debug 'Checking for %s' "$destfolder" >&2
+
+	# Rule lines:
 	IFS=
 	tail -n +2 "$rulefile" | while read -r rule; do
 		if ! grep -E "$rule" "$headerpath" >/dev/null 2>&1; then
@@ -76,7 +79,6 @@ extract_header()
 	headerpath="$(mktemp "$POOCHTMP/header.XXXXXXXX")" \
 		|| die $E_FILESYSTEM 'Could not create temporary file for header'
 
-	# TODO: merge multi-line headers
 	nlines=0
 	lastline=''
 	IFS=
@@ -108,14 +110,13 @@ move()
 	# though:
 	# 1. If the underlying filesystem somehow turns read-only between the
 	#    linking and the removing, we end up with two hard links to the same
-	#    file. This still less of a problem than overwriting files (and we can
-	#    cascade an error message up to the user so they can react).
-	# 2. If a target does not exist, but ln still fails, and then the target is
-	#    created before we check for its existence, we return E_EXISTS even if
-	#    the reason for the failure was a different one. Given that this
-	#    function is called repeatedly until it returns something else than
-	#    E_EXISTS, this may lead to an infinite loop. It is thus recommended to
-	#    keep an upper bound of number of calls to this function.
+	#    file. This is still less of a problem than overwriting files, though
+	#    (and we can cascade an error message up to the user so they can react).
+	# 2. 1. Target does not exist
+	#    2. `ln` fails for a different reason
+	#    3. Target is created
+	#    4. We check for its existence
+	#    5. Target exists, so we return E_EXISTS
 	if [ $testrun -eq $FALSE ]; then
 		if ! ln -PT "$1" "$2"; then
 			if [ -e "$2" ]; then
@@ -136,21 +137,23 @@ move_mail()
 	timestamp="$(printf '%.5f' "$(date '+%s.%N')")"
 	protocol=2 # XXX: what's this?
 	flag=''    # TODO: adopt from original file
-	serial=1
 
 	test_directory -w "$destfolderpath" || exit $?
 
-	while [ $serial -lt 1024 ]; do
+	# Given the race condition in move() that may cause this to turn infinitly,
+	# we set an upper limit for serial numbers (so no `while true`):
+	for serial in $(seq 1 1024); do
 		destpath="$destfolderpath/${timestamp}_$serial.$HOSTNAME:$protocol,$flag"
+
 		moveretval=$E_SUCCESS
 		move "$mailpath" "$destpath" || moveretval=$?
+
 		case $moveretval in
 			($E_SUCCESS)
 				# Move succeeded; we're done:
 				break ;;
 			($E_EXISTS)
 				# File exists; try next serial:
-				serial=$((serial + 1))
 				continue ;;
 			($E_FILESYSTEM)
 				# Some other FS-related issue; abort:
@@ -158,6 +161,7 @@ move_mail()
 				exit $moveretval
 		esac
 	done
+	die $E_INTERNAL 'Aborted: Serial number exceeded maximum'
 )
 
 filter()
@@ -245,7 +249,7 @@ print_help()
 	Usage: $POOCHCMD [OPTION...] ACCOUNT
 
 	Options:
-	  -b PATH    Use PATH as base directory for accounts [default=$basedir]
+	  -b PATH    Use PATH as base directory for accounts [default=$basepath]
 	  -d         Enable debug mode
 	  -h         Display this help and exit
 	  -k         Don't delete headers from $POOCHTMP after processing mails
@@ -258,7 +262,7 @@ print_help()
 # Read command line options:
 while getopts :b:dhkm:tw: opt; do
 	case "$opt" in
-		(b) basedir="$OPTARG" ;;
+		(b) basepath="$OPTARG" ;;
 		(d) debug=$TRUE; debug 'Displaying debug messages' ;;
 		(h) print_help; exit $E_SUCCESS ;;
 		(k) keep_headers=$TRUE ;;
@@ -277,14 +281,14 @@ account="$1"; shift
 test $# -eq 0 || die $E_USER 'Trailing arguments: %s' "$*"
 
 # Check command line options:
-test -n "$basedir" || die $E_USER 'Please specify a non-empty base directory'
+test -n "$basepath" || die $E_USER 'Please specify a non-empty base directory path'
 test -n "$folder" || die $E_USER 'Please specify a non-empty folder name'
 test -n "$account" || die $E_USER 'Please specify a non-empty account name'
 case "$account" in (*/*) die $E_USER 'Invalid account name: %s' "$account"; esac
 
 # Assemble paths:
-test_directory -w "$basedir" || exit $?
-accountpath="$(readlink -f "$basedir/$account")"
+test_directory -w "$basepath" || exit $?
+accountpath="$(readlink -f "$basepath/$account")"
 test_directory -w "$accountpath" || exit $?
 
 # One-time?
