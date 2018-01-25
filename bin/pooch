@@ -110,8 +110,8 @@ move_mail()
 	mailpath="$1"
 	destfolderpath="$2"
 	timestamp="$(printf '%.5f' "$(date '+%s.%N')")"
-	protocol=2 # TODO: what's this?
-	flag=S     # TODO: what's this?
+	protocol=2 # XXX: what's this?
+	flag=''    # TODO: adopt from original file
 	serial=1
 
 	while true; do
