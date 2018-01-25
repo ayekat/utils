@@ -78,11 +78,22 @@ extract_header()
 
 	# TODO: merge multi-line headers
 	nlines=0
+	lastline=''
 	IFS=
 	while read -r line; do
+		case "$line" in
+			(\ *|\	*)
+				# Indented line, append to previous line:
+				lastline="$lastline$line" ;;
+			(*)
+				# Regular line, commit previous line to file:
+				echo "$lastline" >>"$headerpath"
+				nlines=$((nlines + 1))
+				lastline="$line" ;;
+		esac
+
+		# Empty line, we're done:
 		test -n "$line" || break
-		nlines=$((nlines + 1))
-		echo "$line" >> "$headerpath"
 	done <"$mailpath"
 
 	debug 'Stored header (%d lines) as %s' $nlines "$headerpath" >&2
