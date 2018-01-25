@@ -98,8 +98,10 @@ move()
 	# we end up with two hard links to the same file. But that is still less bad
 	# than overwriting files (and we can cascade an error message up to the user
 	# so they can react).
-	ln -PT "$1" "$2" || exit $E_EXISTS
-	rm "$1" || die $E_FILESYSTEM '%s: Move failed for unknown reasons' "$1"
+	if [ $testrun -eq $FALSE ]; then
+		ln -PT "$1" "$2" || exit $E_EXISTS
+		rm "$1" || die $E_FILESYSTEM '%s: Move failed for unknown reasons' "$1"
+	fi
 	debug 'move %s → %s' "$1" "$2"
 )
 
@@ -147,9 +149,7 @@ filter()
 	else
 		# Rule mached:
 		destfolderpath="$accountpath/$destfolder/new"
-		if [ $testrun -eq $TRUE ]; then
-			echo "$mailpath → $destfolderpath"
-		elif ! move_mail "$mailpath" "$destfolderpath"; then
+		if ! move_mail "$mailpath" "$destfolderpath"; then
 			warn 'Could not move %s to %s' "$mailpath" "$destfolderpath"
 			destfolder="$folder"
 		fi
