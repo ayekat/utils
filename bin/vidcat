@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
 # Concatenates videos with same codecs
 # (see https://trac.ffmpeg.org/wiki/Concatenate)

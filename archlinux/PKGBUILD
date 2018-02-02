@@ -1,17 +1,17 @@
-# Maintainer: ayekat <takeya@bluewin.ch>
+# Maintainer: Tinu Weber <http://ayekat.ch>
 
 pkgbase=ayekat-utils-deps
 pkgname=(ayekat-utils-deps ayekat-utils-deps-desktop)
-pkgver=2017.12.26
+pkgver=2018.02.02
 pkgrel=1
 arch=(any)
+
 url='https://github.com/ayekat/utils'
 
 package_ayekat-utils-deps() {
   pkgname=ayekat-utils-deps
   pkgdesc="Dependencies for ayekat's utilities"
-  depends=(bc coreutils curl diffutils file expac git grep lsof perl procps sh
-           tmux zsh)
+  depends=(bash bc coreutils curl file grep perl sh tmux)
 }
 
 package_ayekat-utils-deps-desktop() {
