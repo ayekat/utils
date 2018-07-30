@@ -1,0 +1,25 @@
+#!/bin/sh --
+
+p() {
+	num=$(($1))
+	esc=$(($2))
+	dsc="$3"
+	printf '%2d \033[48;5;%sm  \033[0m %s\n' $num $esc "$dsc"
+}
+
+p  0 15 'white'
+p  1  0 'black'
+p  2  4 'blue'
+p  3  2 'green'
+p  4  9 'light red'
+p  5  1 'brown'
+p  6  5 'purple'
+p  7  3 'orange'
+p  8 11 'yellow'
+p  9 10 'light green'
+p 10  6 'cyan'
+p 11 14 'light cyan'
+p 12 12 'light blue'
+p 13 13 'pink'
+p 14  8 'grey'
+p 14  7 'light grey'
