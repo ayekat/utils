@@ -4,9 +4,6 @@
 APPNAME="$(basename "$0")"
 E_USER=1
 E_INTERN=255
-case "$APPNAME" in (sum|avg) ;; (*)
-	die $E_INTERN 'Please run this script as `sum` or `avg`'
-esac
 
 # Default values:
 precision=0
@@ -23,7 +20,7 @@ die()
 usage()
 {
 	case "$APPNAME" in
-		(sum) echo "$APPNAME: sum up numeric values" ;;
+		(add) echo "$APPNAME: sum up numeric values" ;;
 		(avg) echo "$APPNAME: calculate average value of numeric values" ;;
 	esac
 	cat <<- EOF
@@ -35,6 +32,11 @@ usage()
 	  -p, --precision NUM  Display NUM digits after the decimal point [default=$precision]
 	EOF
 }
+
+# Invocation:
+case "$APPNAME" in (add|avg) ;; (*)
+	die $E_INTERN 'Please run this script as `add` or `avg`'
+esac
 
 # Read arguments:
 while [ $# -gt 0 ]; do
@@ -60,6 +62,7 @@ done
 
 # Calculate:
 case "$APPNAME" in
-	(sum) dc -e "$precision k 0 $summands p" ;;
+	(add) dc -e "$precision k 0 $summands p" ;;
 	(avg) dc -e "$precision k 0 $summands $# / p" ;;
+	(*) die $E_INTERN 'Invoked as %s' "$APPNAME"
 esac
