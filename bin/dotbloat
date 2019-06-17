@@ -10,8 +10,9 @@ n_dots="$(find "$HOME" -maxdepth 1 -mindepth 1 -name '.*' | wc -l)"
 n_all=$((n_nondots + n_dots))
 
 prompt_delete() {
-	printf 'Delete %s? [Y/n] ' "$1"
+	printf '\nDelete %s? [Y/n] ' "$1"
 	read -r a
+	test -t 0 || printf '\033[1;32m%s\033[0m\n' "$a"
 	case "$a" in
 		(''|Y*|y*) rm -rv "$1" ;;
 		(N*|n*) ;;
@@ -38,6 +39,7 @@ ls -1d --color=auto .[!.]*
 for i in .*; do
 	case "$i" in
 		(.|..|.anthy|.local|.pam_environment|.pki|.ssh) ;;
-		(*) echo; prompt_delete "$i" ;;
+		(.mozilla|.w3m) echo y | prompt_delete "$i" ;;
+		(*) prompt_delete "$i" ;;
 	esac
 done
