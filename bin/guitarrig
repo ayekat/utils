@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh -
 # Takes the input from the GuitarRig Mobile I/O sound card.
 # Output should be redirected either to a file or aplay
 

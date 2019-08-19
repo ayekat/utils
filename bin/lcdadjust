@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh -
 
 HOSTNAME="${HOSTNAME:-$(hostname)}"
 XDG_LIB_HOME="${XDG_LIB_HOME:-$HOME/.local/lib}"

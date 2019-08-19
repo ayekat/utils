@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh -
 
 emote="$(dmenu "$@" <<- EOF | cut -c 12-
 fliptable  (╯°□°)╯︵ ┻━┻

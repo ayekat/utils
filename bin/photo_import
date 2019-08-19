@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh -
 
 # Determine extension:
 ext="$(file --brief --mime "$1" | cut -d ';' -f 1 | cut -d '/' -f 2)"

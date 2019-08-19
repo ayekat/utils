@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh -
 # Lists some statistics about the number of files in $HOME
 
 set -eu

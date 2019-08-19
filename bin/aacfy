@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh -
 
 # Converts a file's audio to the AAC encoding, preserving all tags.
 # It uses ffmpeg to decode and NeroAacEnc to encode the file.

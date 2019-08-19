@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh -
 
 # Print most used shell commands.
 
