@@ -39,7 +39,7 @@ ls -1d --color=auto .[!.]*
 for i in .*; do
 	case "$i" in
 		(.|..|.anthy|.local|.pam_environment|.pki|.ssh) ;;
-		(.mozilla|.w3m) echo y | prompt_delete "$i" ;;
+		(.ansible|.ansible_galaxy|.mozilla|.w3m) echo y | prompt_delete "$i" ;;
 		(*) prompt_delete "$i" ;;
 	esac
 done
