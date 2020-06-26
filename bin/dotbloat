@@ -35,11 +35,23 @@ if ! cd "$HOME"; then
 fi
 ls -1d --color=auto .[!.]*
 
+# automatic decisions for specific directories:
+whitelist='anthy local pam_environment pki ssh'
+blacklist='ansible ansible_galaxy jitsi mozilla w3m zoom'
+
 # delete:
-for i in .*; do
-	case "$i" in
-		(.|..|.anthy|.local|.pam_environment|.pki|.ssh) ;;
-		(.ansible|.ansible_galaxy|.mozilla|.w3m) echo y | prompt_delete "$i" ;;
-		(*) prompt_delete "$i" ;;
-	esac
+for d in .*; do
+	case "$d" in (.|..) continue ;; esac
+	for wd in $whitelist; do
+		if [ "$d" = ".$wd" ]; then
+			continue 2
+		fi
+	done
+	for bd in $blacklist; do
+		if [ "$d" = ".$bd" ]; then
+			echo y | prompt_delete "$d"
+			continue 2
+		fi
+	done
+	prompt_delete "$d"
 done
