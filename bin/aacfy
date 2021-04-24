@@ -1,30 +1,35 @@
 #!/bin/sh -
 
-# Converts a file's audio to the AAC encoding, preserving all tags.
+# Converts a file's audio to the AAC encoding.
 # It uses ffmpeg to decode and NeroAacEnc to encode the file.
 #
 # Written by ayekat on an annoying afternoon with iTunes in February 2015.
 
-set -e
+set -uf
 
-check_command() {
-	if ! command -v "$1" >/dev/null; then
-		echo "$1 does not exist" >&2
-		exit 127
-	fi
+readonly E_USER=1
+readonly E_FILE=2
+readonly E_DEPS=3
+
+die()
+{
+	retval=$(($1)); shift
+	# shellcheck disable=SC2059
+	{ printf "$@"; echo; } >&2
+	exit $retval
 }
 
-check_command neroAacEnc
-check_command ffmpeg
+command -v ffmpeg || die $E_DEPS 'ffmpeg not found'
+command -v neroAacEnc || die $E_DEPS 'neroAacEnc not found'
 
-if [ ! -e "$1" ]; then
-	echo "$1: file not found" >&2
-	exit 1
-fi
+test $# -gt 0 || die $E_USER 'Please pass at least one file to convert'
 
-if [ -e "$1".m4a ]; then
-	echo "${1}.m4a: file already exists" >&2
-	exit 1
-fi
-
-ffmpeg -i "$1" -f wav - | neroAacEnc -if - -q 0.9 -ignorelength -of "$1".m4a
+for file_in in "$@"; do
+	test -e "$file_in" || die $E_FILE '%s: file not found' "$file_in"
+	file_wav=$file_in.wav
+	test ! -e "$file_wav" || die $E_FILE '%s: file already exists' "$file_wav"
+	file_out=$file_wav.m4a
+	test ! -e "$file_out" || die $E_FILE '%s: file already exists' "$file_out"
+	ffmpeg -i "$file_in" -f wav "$file_wav"
+	neroAacEnc -if "$file_wav" -br 320000 -2pass -of "$file_out"
+done
