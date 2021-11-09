@@ -9,27 +9,93 @@ set -uf
 
 readonly E_USER=1
 readonly E_FILE=2
-readonly E_DEPS=3
+readonly E_CONVERT=3
+readonly E_INTERNAL=13
+
+true() { return 0; }
+false() { return 1; }
+
+print_usage()
+{
+	cat <<- EOF
+	aacfy - convert a file's audio to AAC
+
+	Usage: aacfy -h
+	       aacfy [OPTIONS...] INFILE1 [INFILE2 ...]
+
+	Options:
+	  -h       Print this help message and abort
+	  -s TIME  Crop file, start at TIME
+	  -t TIME  Crop file, end at TIME
+	EOF
+}
 
 die()
 {
 	retval=$(($1)); shift
-	# shellcheck disable=SC2059
-	{ printf "$@"; echo; } >&2
+	if [ $# -gt 0 ]; then
+		# shellcheck disable=SC2059
+		printf "$@"
+		printf '\n'
+	fi >&2
 	exit $retval
 }
 
-command -v ffmpeg || die $E_DEPS 'ffmpeg not found'
-command -v neroAacEnc || die $E_DEPS 'neroAacEnc not found'
+check_file_is_absent()
+{
+	test ! -e "$1" || die $E_FILE '%s: file exists' "$1"
+}
+
+check_file_is_present()
+{
+	test -e "$1" || die $E_FILE '%s: file not found' "$1"
+}
+
+convert_file()
+{
+	file_in=$1
+	file_wav=$file_in.wav
+	file_aac=$file_wav.m4a
+
+	# Check files' existence/absence:
+	check_file_is_present "$file_in"
+	check_file_is_absent "$file_wav"
+	check_file_is_absent "$file_aac"
+
+	# Convert from input to WAV:
+	set -- ffmpeg -i "$file_in" -f wav
+	if $CROP_START; then
+		set -- "$@" -ss "$CROP_START_TIME"
+	fi
+	if $CROP_END; then
+		set -- "$@" -to "$CROP_END_TIME"
+	fi
+	set -- "$@" "$file_wav"
+	"$@" || die $E_CONVERT
+
+	# Convert from WAV to AAC:
+	neroAacEnc -if "$file_wav" -br 320000 -2pass -of "$file_aac" || die $E_CONVERT
+}
+
+CROP_START=false
+CROP_END=false
+while getopts :hs:t: opt; do
+	case "$opt" in
+		(h) print_help; exit $E_USER ;;
+		(s) CROP_START=true; CROP_START_TIME=$OPTARG ;;
+		(t) CROP_END=true; CROP_END_TIME=$OPTARG ;;
+		(:) die $E_USER 'Missing argument for -%s' "$OPTARG" ;;
+		('?') die $E_USER 'Unknown option -%s' "$OPTARG" ;;
+		(*) die $E_INTERNAL 'Unhandled option -%s' "$OPTARG" ;;
+	esac
+done
+shift $((OPTIND - 1))
+unset OPTARG
+
+readonly CROP_START CROP_END
 
 test $# -gt 0 || die $E_USER 'Please pass at least one file to convert'
 
 for file_in in "$@"; do
-	test -e "$file_in" || die $E_FILE '%s: file not found' "$file_in"
-	file_wav=$file_in.wav
-	test ! -e "$file_wav" || die $E_FILE '%s: file already exists' "$file_wav"
-	file_out=$file_wav.m4a
-	test ! -e "$file_out" || die $E_FILE '%s: file already exists' "$file_out"
-	ffmpeg -i "$file_in" -f wav "$file_wav"
-	neroAacEnc -if "$file_wav" -br 320000 -2pass -of "$file_out"
+	convert_file "$file_in"
 done
